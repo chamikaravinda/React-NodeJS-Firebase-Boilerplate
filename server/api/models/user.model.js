@@ -1,5 +1,8 @@
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import { DEFAULT_PROFILE_IMAGE } from "../utils/commonConstant.js";
+import {
+  DEFAULT_PROFILE_IMAGE,
+  USER_COLLECTION,
+} from "../utils/commonConstant.js";
 
 class User {
   constructor(name, email, password, profilePicture, userRole, id, createdAt) {
@@ -7,13 +10,13 @@ class User {
     this.name = name;
     this.email = email;
     this.password = password;
-    this.profilePicture = profilePicture || DEFAULT_PROFILE_IMAGE;
+    this.profilePicture = profilePicture;
     this.userRole = userRole || "user";
     this.createdAt = createdAt || Timestamp.now();
   }
 
   /**
-   * Retrieve a user from Firestore by Email.
+   * Save a new user in Firestore.
    * @returns void
    */
   async save() {
@@ -28,7 +31,7 @@ class User {
       createdAt: this.createdAt,
     };
 
-    const docRef = db.collection("users").doc();
+    const docRef = db.collection(USER_COLLECTION).doc();
     await docRef.set(userData);
   }
 
@@ -41,7 +44,7 @@ class User {
     const db = getFirestore();
 
     const userDoc = await db
-      .collection("users")
+      .collection(USER_COLLECTION)
       .where("email", "==", email)
       .get();
 
@@ -56,7 +59,7 @@ class User {
         data.profilePicture,
         data.userRole,
         doc.id,
-        data.createdAt,
+        data.createdAt
       );
     });
 
@@ -64,34 +67,60 @@ class User {
   }
 
   /**
-   * Delete a user from Firestore by ID.
-   * @param {string} id - Firestore document ID
-   */
-  static async deleteById(id) {
-    const db = admin.firestore();
-    await db.collection("users").doc(id).delete();
-    console.log(`User with ID ${id} deleted successfully!`);
-  }
-
-  /**
    * Get all users from the `users` collection.
    * @returns {User[]} - Array of User objects
    */
-  static async findAll() {
-    const db = admin.firestore();
-    const snapshot = await db.collection("users").get();
+  static async findAll(sortDirection,startIndex,limit) {
+    const db = getFirestore();
+    const snapshot = await db
+      .collection(USER_COLLECTION)
+      .orderBy("createdAt", sortDirection) 
+      .offset(startIndex) 
+      .limit(limit)
+      .get();
 
     return snapshot.docs.map((doc) => {
       const data = doc.data();
       return new User(
-        doc.id,
         data.name,
         data.email,
         data.password,
-        data.createdAt,
-        data.address
+        data.profilePicture,
+        data.userRole,
+        doc.id,
+        data.createdAt
       );
     });
+  }
+
+  static async updateById(id, userData) {
+    const db = getFirestore();
+
+    const userDoc = await db.collection(USER_COLLECTION).doc(id);
+
+    if (userDoc.empty) {
+      console.error("User not found in the database.", userData.email);
+      return;
+    }
+
+    const res = await userDoc.update(this.createUpdateUserObject(userData));
+    return res;
+  }
+
+  static createUpdateUserObject(user) {
+    const allowedFields = ["name", "email", "password", "profilePicture"];
+    let updateUserObject = {};
+
+    Object.keys(user).forEach((key) => {
+      if (allowedFields.includes(key) && user[key] && user[key].trim() !== "") {
+        updateUserObject[key] = user[key];
+      }
+    });
+    return updateUserObject;
+  }
+
+  static async findByIdAndDelete(id) {
+    return await db.collection(USER_COLLECTION).doc(id).delete();
   }
 }
 
