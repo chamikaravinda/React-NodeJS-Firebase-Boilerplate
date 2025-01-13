@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { errorHandler, successHandler } from "../utils/response.js";
 import jwt from "jsonwebtoken";
 import { validateUser } from "../utils/validators.js";
-import { ACCESS_TOKEN } from "../utils/commonConstant.js";
+import { ACCESS_TOKEN, DEFAULT_PROFILE_IMAGE } from "../utils/commonConstant.js";
 
 export const signUp = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -152,13 +152,14 @@ export const googleAuth = async (req, res, next) => {
         Math.random().toString(36).slice(-8);
 
       const hashedPassword = bcrypt.hashSync(generatedPassword, 10);
-      const newUser = new User({
+      const newUser = new User(
         name,
         email,
-        password: hashedPassword,
-        profilePicture: googlePhotoUrl,
-      });
+        hashedPassword,
+        googlePhotoUrl,
+      );
       await newUser.save();
+      console.log("User Signup successful", email);
       const token = jwt.sign(
         {
           id: newUser.id,
@@ -166,7 +167,8 @@ export const googleAuth = async (req, res, next) => {
         },
         process.env.JWT_SECRET
       );
-      const { password, ...rest } = newUser._doc;
+      const { password, ...rest } = newUser;
+      console.log("Sending the token and user data to log in automatically", email);
       res
         .status(200)
         .cookie(ACCESS_TOKEN, token, {

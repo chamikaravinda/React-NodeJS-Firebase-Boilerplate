@@ -60,7 +60,7 @@ export const deleteUser = async (req, res, next) => {
 };
 
 export const signout = (req, res, next) => {
-  console.log("Request received to signout", req.user.userId);
+  console.log("Request received to signout user", req.user.id);
   try {
     res
       .clearCookie(ACCESS_TOKEN)
@@ -83,7 +83,7 @@ export const getUsers = async (req, res, next) => {
   try {
     const startIndex = parseInt(req.query.startIndex) || 0;
     const limit = parseInt(req.query.limit) || 9;
-    const sortDirection = req.query.sort === "asc" ? 1 : -1;
+    const sortDirection = req.query.sort || "asc";
 
     const users = await User.findAll(sortDirection, startIndex, limit);
 
