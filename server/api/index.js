@@ -1,28 +1,22 @@
 import express from "express";
-import dotenv from "dotenv";
-import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
-import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
-import serviceAccount from '../next-node-firebase-boile-0b69b5bc97cf.json' assert { type: "json" };
-
-dotenv.config();
-
-
-initializeApp({
-  credential: cert(serviceAccount)
-});
-
-const db = getFirestore();
+import config from "./config/config.js";
+import { initializeApp, cert } from "firebase-admin/app";
+import serviceAccount from "../next-node-boilerplate-firebase-adminsdk-y5kab-24ce53b677.json" assert { type: "json" };
 
 const app = express();
+
+initializeApp({
+  credential: cert(serviceAccount),
+});
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(config.port, () => {
+  console.log(`Server is running @ ${config.hostUrl}`);
 });
 
 app.use("/api/user", userRoutes);
