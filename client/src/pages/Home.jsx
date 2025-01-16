@@ -3,6 +3,7 @@ import { Button } from "flowbite-react";
 import FooterComponent from "../components/Footer";
 
 export default function Home() {
+  
   return (
     <>
       <div className="min-h-screen">

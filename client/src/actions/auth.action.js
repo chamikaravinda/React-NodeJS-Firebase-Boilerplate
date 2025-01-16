@@ -8,7 +8,7 @@ import {
 
 export const userSingIn = (formData, success) => {
   dispatchStartLoading();
-  fetch("api/auth/signin", {
+  fetch("/api/auth/signin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
@@ -30,7 +30,7 @@ export const userSingIn = (formData, success) => {
 
 export const userSingUp = (formData, success) => {
   dispatchStartLoading();
-  fetch("api/auth/signup", {
+  fetch("/api/auth/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),

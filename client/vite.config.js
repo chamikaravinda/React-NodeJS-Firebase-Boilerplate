@@ -4,15 +4,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// https://vite.dev/config/
 export default defineConfig({
   server: {
     proxy: {
       "/api": {
         target: process.env.SERVER,
         secure: false,
+        changeOrigin: true,
       },
     },
+    host: "0.0.0.0",
+    port: 5173,
   },
   plugins: [react()],
 });

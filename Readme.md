@@ -49,7 +49,29 @@ This repository is a boilerplate for a web application using React for the front
     cd /client
     npm run dev
     ```
+6. **Run with Docker:**
 
+Run the following cmds to build the frontend and push to dockerhub
+'
+```
+docker build -t chamikaravinda/react-boilerplate-frontend:latest .\client\
+
+docker image push  chamikaravinda/react-boilerplate-frontend:latest
+```
+Run the following cmds to build the backend and push to dockerhub
+
+```
+docker build -t chamikaravinda/node-boilerplate-backend:latest .\server\
+
+docker image push  chamikaravinda/node-boilerplate-backend:latest
+```
+Run the following cmds to start servers with docker-compose
+
+```
+docker-compose pull
+
+docker-compose up
+```
 ## Project Structure
 
 - `/client`: Contains the React frontend code.
